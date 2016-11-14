@@ -15,7 +15,7 @@ class AQueue {
   T* arr;          // contains queue elements
 
  public:
-  AQueue(int s = 2);
+  AQueue(int s = 10);
   ~AQueue();
 
   void clear();
