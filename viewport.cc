@@ -64,8 +64,9 @@ void Viewport::ProcessPacketContainer(const caerEventPacketContainer& packet_con
     StoreEvent(ts, x, y, pol);
 
     // handle the event
-    //DrawPolarityEventMatchOnly(x, y, pol, frame);
-    DrawPolarityEventPoint(x, y, pol, frame);
+    DrawPolarityEventMatchOnly(x, y, pol, frame);
+    //DrawPolarityEventByDirection(x, y, pol, frame);
+    //DrawPolarityEventPoint(x, y, pol, frame);
     //DrawPolarityEventCircle(x, y, pol, frame);
 
     // invalidate the current event
@@ -175,6 +176,70 @@ void Viewport::DrawPolarityEventMatchOnly(uint16_t x, uint16_t y, bool polarity,
   if (time_stamp == -1) { return; } // error
 
   int final_x = -1, final_y = -1;
+  int64_t min_t = 1; // this is the 'max' time
+
+  for (int dx = -1; dx < 2; dx++) {
+    for (int dy = -1; dy < 2; dy++) {
+
+      if (dx == 0 && dy == 0) continue;
+
+      if (InBound (x+dx, y+dy) &&
+          HasMatchingPolarity (x+dx, y+dy, polarity)) {
+
+        // if difference between time_stamp and other timestamp is below
+        // the current 'min' time difference
+        int64_t curr_t = time_stamp -
+          viewport_events_[x+dx][y+dy].getBack(polarity);
+        if (curr_t < min_t) {
+          // set new values
+          min_t = curr_t;
+          final_x = x + dx;
+          final_y = y + dy;
+        }
+      }
+    }
+  }
+
+  // ensure at least one was found
+  if (final_x >= 0 || final_y >= 0) {
+    // final_x and final_y are the coordinates of the most recent match
+
+
+    // min_t is the time step between the two events; smaller min_t = faster movement
+    //char color_intensity = GetColorValue(min_t);
+    int color_intensity = 255;
+
+    // draw a line between the two points
+    cv::line (frame, cv::Point (x, y), cv::Point (final_x, final_y),
+              polarity ? cv::Scalar (0, color_intensity, 0) :
+	      cv::Scalar (0, 0, color_intensity),
+              /*thickness*/ 1, /*lineType*/ cv::LINE_8, /*shift*/ 0);
+    if (print) {
+      std::cout << "line from (" << x << ", " << y << ") to (" << final_x << ", "
+                << final_y << ")" << std::endl;
+    }
+  }
+}
+
+// takes the time step (in microseconds) between the two events of interest
+// returns a value that is higher, when the time step shorter
+// char Viewport::GetColorValue(int64_t time_step) const {
+//   double time_seconds = static_cast<double>(time_step) * 1e-6;
+//   if (time_seconds < 1.0) // within one second
+//     return 255;
+//   else if (time_seconds < 2.0)
+//     return 150;
+//   else
+//     return 80;
+// }
+///////////// updated ////////////
+
+void Viewport::DrawPolarityEventByDirection(uint16_t x, uint16_t y, bool polarity,
+                                          cv::Mat& frame) {
+  int64_t time_stamp = viewport_events_[x][y].getBack(polarity);
+  if (time_stamp == -1) { return; } // error
+
+  int final_x = -1, final_y = -1;
   int64_t min_t = 9999999999; // this is the 'max' time
 
   for (int dx = -1; dx < 2; dx++) {
@@ -232,6 +297,8 @@ void Viewport::DrawPolarityEventMatchOnly(uint16_t x, uint16_t y, bool polarity,
 //     return 80;
 // }
 
+
+//////////// updated /////////////
 bool Viewport::InBound(int x, int y) const {
   if (x >= WIDTH  || x < 0 ||
       y >= HEIGHT || y < 0) {

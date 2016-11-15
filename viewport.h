@@ -34,9 +34,10 @@ class Viewport {
   void DrawPolarityEventPoint(uint16_t, uint16_t, bool, cv::Mat&);
   void DrawPolarityEventCircle(uint16_t, uint16_t, bool, cv::Mat&);
   void DrawPolarityEventMatchOnly(uint16_t, uint16_t, bool, cv::Mat&);
+  void DrawPolarityEventByDirection(uint16_t, uint16_t, bool, cv::Mat&);
   void Show(const cv::Mat&) const;
   bool ShouldQuit();
-  
+
  private:
   const int WIDTH = 190;
   const int HEIGHT = 180;
@@ -44,7 +45,7 @@ class Viewport {
   const cv::Scalar RED = cv::Scalar(0, 0, 255);
   const std::string window_name_ = "main frame";
 
-  
+
   PolarityEvent **viewport_events_;
   bool print;
 
