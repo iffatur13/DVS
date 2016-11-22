@@ -64,8 +64,8 @@ void Viewport::ProcessPacketContainer(const caerEventPacketContainer& packet_con
     StoreEvent(ts, x, y, pol);
 
     // handle the event
-    DrawPolarityEventMatchOnly(x, y, pol, frame);
-    //DrawPolarityEventByDirection(x, y, pol, frame);
+    //DrawPolarityEventMatchOnly(x, y, pol, frame);
+    DrawPolarityEventByDirection(x, y, pol, frame);
     //DrawPolarityEventPoint(x, y, pol, frame);
     //DrawPolarityEventCircle(x, y, pol, frame);
 
@@ -176,7 +176,7 @@ void Viewport::DrawPolarityEventMatchOnly(uint16_t x, uint16_t y, bool polarity,
   if (time_stamp == -1) { return; } // error
 
   int final_x = -1, final_y = -1;
-  int64_t min_t = 1; // this is the 'max' time
+  int64_t min_t = 9999999999; // this is the 'max' time
 
   for (int dx = -1; dx < 2; dx++) {
     for (int dy = -1; dy < 2; dy++) {
@@ -236,11 +236,23 @@ void Viewport::DrawPolarityEventMatchOnly(uint16_t x, uint16_t y, bool polarity,
 
 void Viewport::DrawPolarityEventByDirection(uint16_t x, uint16_t y, bool polarity,
                                           cv::Mat& frame) {
+
+ static int counter = 0;
+ static int tie = 0;
+ int found = 0;
+ int max_x = -1;
+ int max_y = -1;
+
+ int width = frame.cols;
+ int height = frame.rows;
+ int center_x = height/2, center_y = width/2;
+
+
   int64_t time_stamp = viewport_events_[x][y].getBack(polarity);
   if (time_stamp == -1) { return; } // error
 
   int final_x = -1, final_y = -1;
-  int64_t min_t = 9999999999; // this is the 'max' time
+  int64_t min_t = 99; // this is the 'max' time
 
   for (int dx = -1; dx < 2; dx++) {
     for (int dy = -1; dy < 2; dy++) {
@@ -249,6 +261,8 @@ void Viewport::DrawPolarityEventByDirection(uint16_t x, uint16_t y, bool polarit
 
       if (InBound (x+dx, y+dy) &&
           HasMatchingPolarity (x+dx, y+dy, polarity)) {
+
+
 
         // if difference between time_stamp and other timestamp is below
         // the current 'min' time difference
@@ -259,10 +273,28 @@ void Viewport::DrawPolarityEventByDirection(uint16_t x, uint16_t y, bool polarit
           min_t = curr_t;
           final_x = x + dx;
           final_y = y + dy;
+
+          if(found) //we found more than one match
+          {
+            std::cout << "here" << std::endl;
+            int new_dist = abs(final_x - center_x) + abs(final_y - center_y);
+            int old_dist = abs(max_x - center_x) + abs(max_y - center_y);
+            if(new_dist <= old_dist)
+            {
+              max_x = final_x;
+              max_y = final_y;
+            }
+          }
+
+
+          found++;
         }
       }
     }
   }
+
+  final_x = max_x;
+  final_y = max_y;
 
   // ensure at least one was found
   if (final_x >= 0 || final_y >= 0) {
@@ -282,6 +314,11 @@ void Viewport::DrawPolarityEventByDirection(uint16_t x, uint16_t y, bool polarit
       std::cout << "line from (" << x << ", " << y << ") to (" << final_x << ", "
                 << final_y << ")" << std::endl;
     }
+
+    counter++;
+    if (found > 1) tie++;
+
+    std::cout << "counter = " << counter << ", " << "tie = " << tie << std::endl;
   }
 }
 
