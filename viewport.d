@@ -249,4 +249,5 @@ viewport.o: viewport.cc /usr/include/stdc-predef.h viewport.h \
  /usr/local/include/opencv2/imgcodecs/imgcodecs_c.h \
  /usr/local/include/opencv2/videoio/videoio_c.h \
  /usr/local/include/opencv2/imgproc/imgproc.hpp \
- /usr/local/include/opencv2/imgproc.hpp aqueue.h polarity_event.h
+ /usr/local/include/opencv2/imgproc.hpp aqueue.h polarity_event.h \
+ /usr/include/c++/5/bitset

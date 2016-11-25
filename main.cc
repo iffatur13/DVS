@@ -54,7 +54,7 @@ int main () {
   // takes factor by which window dimensions will be scaled and whether
   // per-event details will be output to standard output
   Viewport view(2, false);
-    
+
   // some initialization
   if (!initSignalHandler()) {
     return (EXIT_FAILURE);
@@ -69,7 +69,7 @@ int main () {
 
   // grabs device info and sets default configuration
   getDeviceInfo(davis_handle);
-  
+
   // setup biases, increase bandwidth
   initBiases(davis_handle);
 
@@ -89,11 +89,15 @@ int main () {
     if (view.ShouldQuit()) {
       break;
     }
-    
-  }  
+
+  }
 
   caerDeviceDataStop(davis_handle);
   caerDeviceClose(&davis_handle);
+
+  for (int i = 0; i < 256; i++) {
+    cout << "hist[" << i << "] = " << hist[i] << ", bits = " << __builtin_popcount(i) << endl;
+  }
 
   return (EXIT_SUCCESS);
 }
@@ -154,7 +158,7 @@ void initBiases(caerDeviceHandle& davis_handle) {
 		      DAVIS_CONFIG_BIAS,
 		      DAVIS240_CONFIG_BIAS_PRBP,
 		      &prBias);
-  
+
   caerDeviceConfigGet(davis_handle,
 		      DAVIS_CONFIG_BIAS,
 		      DAVIS240_CONFIG_BIAS_PRSFBP,

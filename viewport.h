@@ -35,6 +35,7 @@ class Viewport {
   void DrawPolarityEventCircle(uint16_t, uint16_t, bool, cv::Mat&);
   void DrawPolarityEventMatchOnly(uint16_t, uint16_t, bool, cv::Mat&);
   void DrawPolarityEventByDirection(uint16_t, uint16_t, bool, cv::Mat&);
+  void DrawPolarityEventBitMapping(uint16_t, uint16_t, bool, cv::Mat&);
   void Show(const cv::Mat&) const;
   bool ShouldQuit();
 
@@ -58,6 +59,6 @@ class Viewport {
   //char GetColorValue(int64_t) const;
 };
 
-
+extern int hist[256];
 
 #endif
