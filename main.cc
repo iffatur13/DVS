@@ -96,7 +96,8 @@ int main () {
   caerDeviceClose(&davis_handle);
 
   for (int i = 0; i < 256; i++) {
-    cout << "hist[" << i << "] = " << hist[i] << ", bits = " << __builtin_popcount(i) << endl;
+    //cout << "hist[" << i << "] = " << hist[i] << ", bits = " << __builtin_popcount(i) << endl;
+    cout<< hist[i]<<endl;
   }
 
   return (EXIT_SUCCESS);
